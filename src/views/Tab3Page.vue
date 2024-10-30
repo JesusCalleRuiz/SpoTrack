@@ -14,7 +14,7 @@
       </ion-header>
 
       <ion-card v-for="(route) in routes" :key="route.id">
-        <div :id="`map-${route.id}`" class="map-container"></div>
+        <!--div :id="`map-${route.id}`" class="map-container"></div-->
         <ion-card-header>
           <ion-card-title>{{ route.name }}</ion-card-title>
         </ion-card-header>
@@ -42,7 +42,7 @@ import {
   IonCardTitle
 } from '@ionic/vue';
 import { ref, onMounted, nextTick } from 'vue';
-import mapboxgl from "mapbox-gl";
+//import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface Route {
@@ -70,7 +70,7 @@ const fetchRoutes = async (userId : string) => {
         path: JSON.parse(route.path)
       }));
       await nextTick();
-      routes.value.forEach(route => initMap(route));
+      //routes.value.forEach(route => initMap(route));
     } else {
       console.error('Error al obtener las rutas');
     }
@@ -83,7 +83,7 @@ const userId = '1';
 onMounted(() => {
   fetchRoutes(userId);
 });
-
+/*
 const initMap = (route : Route) => {
   mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
@@ -129,6 +129,7 @@ const initMap = (route : Route) => {
     map.fitBounds(bounds, { padding: 100 });
   });
 };
+  */
 </script>
 
 <style>
