@@ -87,7 +87,7 @@ onMounted(() => {
 const initMap = (route) => {
   mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
-  const coordinates = route.path.map(coord => [coord.lng, coord.lat]);
+  const coordinates = route.path.map((coord: { lat: number; lng: number }) => [coord.lng, coord.lat]);
 
   const bounds = new mapboxgl.LngLatBounds();
   coordinates.forEach(coord => {
@@ -114,7 +114,7 @@ const initMap = (route) => {
             'type': 'LineString',
             'coordinates': coordinates
           }
-        } as mapboxgl.GeoJSONSourceRaw
+        } as GeoJSON.Feature<GeoJSON.Geometry>,
       },
       'layout': {
         'line-join': 'round',
