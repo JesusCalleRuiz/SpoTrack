@@ -140,7 +140,7 @@ const calculateDistance = () => {
 const formatDistance = (distanceInM: number) => {
   const m = distanceInM.toFixed(0);
   const km = (distanceInM / 1000).toFixed(2);
-  return km < 1 ? `${m}m` : `${km}km`;
+  return parseFloat(km) < 1 ? `${m}m` : `${km}km`;
 };
 
 const calculateDuration = () => Math.floor((endTime - startTime) / 1000);
