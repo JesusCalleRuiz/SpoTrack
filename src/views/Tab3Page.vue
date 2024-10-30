@@ -84,14 +84,14 @@ onMounted(() => {
   fetchRoutes(userId);
 });
 
-const initMap = (route) => {
+const initMap = (route : Route) => {
   mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
   const coordinates = route.path.map((coord: { lat: number; lng: number }) => [coord.lng, coord.lat]);
 
   const bounds = new mapboxgl.LngLatBounds();
-  coordinates.forEach(coord => {
-    bounds.extend(coord as [number, number]);
+  coordinates.forEach((coord: [number, number]) => {
+    bounds.extend(coord);
   });
 
   const map = new mapboxgl.Map({
