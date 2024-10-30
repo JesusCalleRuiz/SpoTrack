@@ -1,6 +1,6 @@
 {
   "appId" : "spotrack.app",
   "appName" : "SpoTrack",
-  "webDir" : "www",
+  "webDir" : "dist",
   "bundleWebRuntime" : false
 }
