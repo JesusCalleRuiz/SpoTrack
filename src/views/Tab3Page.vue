@@ -45,15 +45,27 @@ import { ref, onMounted, nextTick } from 'vue';
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-const routes = ref([]);
+interface Route {
+  id: number;
+  name: string;
+  created_at: string;
+  distance: string;
+  duration: string;
+  path: { lat: number; lng: number }[];
+}
 
-const fetchRoutes = async (userId) => {
+
+const routes = ref<Route[]>([]);
+
+
+
+const fetchRoutes = async (userId : string) => {
   try {
     const response = await fetch(`https://spotrack.dev-alicenter.es/api/route/${userId}`);
     if (response.ok) {
       const data = await response.json();
       console.log(data);
-      routes.value = data.data.map(route => ({
+      routes.value = data.data.map((route : any) => ({
         ...route,
         path: JSON.parse(route.path)
       }));
@@ -79,7 +91,7 @@ const initMap = (route) => {
 
   const bounds = new mapboxgl.LngLatBounds();
   coordinates.forEach(coord => {
-    bounds.extend(coord);
+    bounds.extend(coord as [number, number]);
   });
 
   const map = new mapboxgl.Map({
@@ -102,7 +114,7 @@ const initMap = (route) => {
             'type': 'LineString',
             'coordinates': coordinates
           }
-        }
+        } as mapboxgl.GeoJSONSourceRaw
       },
       'layout': {
         'line-join': 'round',
