@@ -54,10 +54,7 @@ interface Route {
   path: { lat: number; lng: number }[];
 }
 
-
 const routes = ref<Route[]>([]);
-
-
 
 const fetchRoutes = async (userId : string) => {
   try {
