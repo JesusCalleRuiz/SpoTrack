@@ -2,13 +2,13 @@
   <ion-page>
     <ion-header>
       <ion-toolbar>
-        <ion-title>{{ routeData.name }}</ion-title>
+        <ion-title>{{ routeData?.name }}</ion-title>
       </ion-toolbar>
     </ion-header>
 
     <ion-content :fullscreen="true">
       <div id="map" class="map-container"></div>
-      <div class="info">
+      <div class="info" v-if="routeData">
         <p>Fecha: {{ new Date(routeData.created_at).toLocaleString() }}</p>
         <p>Distancia: {{ routeData.distance }}</p>
         <p>Tiempo: {{ routeData.duration }}</p>
@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -26,12 +26,21 @@ import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
+interface RouteData {
+  name: string;
+  created_at: string;
+  distance: string;
+  duration: string;
+  path: { lat: number; lng: number }[];
+}
+
 const route = useRoute();
-const routeData = route.params.route ? JSON.parse(route.params.route) : null;
+const routeData = ref<RouteData | null>(route.params.route ? JSON.parse(route.params.route) : null);
 
 const initMap = () => {
+  if (!routeData.value) return;
 
-  const coordinates = routeData.path.map((coord: { lat: number; lng: number }) => [coord.lng, coord.lat]);
+  const coordinates = routeData.value.path.map((coord: { lat: number; lng: number }) => [coord.lng, coord.lat]);
   const bounds = new mapboxgl.LngLatBounds();
 
   coordinates.forEach((coord) => bounds.extend(coord));
@@ -70,7 +79,6 @@ const initMap = () => {
     map.fitBounds(bounds, { padding: 50 });
   });
 };
-
 onMounted(initMap);
 </script>
 
@@ -89,3 +97,4 @@ onMounted(initMap);
   font-size: 24px;
 }
 </style>
+
