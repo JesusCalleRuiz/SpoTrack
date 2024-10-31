@@ -15,13 +15,18 @@
 
       <div id="map" class="map-container"></div>
 
-      <div class="tracking-status">
-        <p>Distancia: {{ distancia }}</p>
-        <p>Tiempo: {{ tiempo }} </p>
+      <div class="center-button" v-if="!isTracking">
+        <ion-button @click="startTracking" shape="round" size="large">INICIAR</ion-button>
+      </div>
+      <div class="center-button" v-if="isTracking">
+        <ion-button @click="stopTracking" shape="round" size="large">PAUSAR</ion-button>
+        <ion-button @click="stopTracking" shape="round" size="large">TERMINAR</ion-button>
       </div>
 
-      <ion-button @click="startTracking" v-if="!isTracking">INICIAR</ion-button>
-      <ion-button @click="stopTracking" v-else>TERMINAR</ion-button>
+      <!--div class="tracking-info" v-else>
+        <p>Distancia: {{ distancia }}</p>
+        <p>Tiempo: {{ tiempo }}</p>
+      </div-->
     </ion-content>
   </ion-page>
 </template>
@@ -63,16 +68,17 @@ const initializeMap = async () => {
   });
 
   marker = new mapboxgl.Marker().setLngLat([longitude, latitude]).addTo(map);
+  map.setCenter([longitude, latitude]);
 };
 
 const startTracking = async () => {
   isTracking.value = true;
   startTime = Date.now();
 
+
   watchId = await Geolocation.watchPosition(
       {
         enableHighAccuracy: true,
-
       },
       (position) => {
         if (position) {
@@ -80,7 +86,6 @@ const startTracking = async () => {
           routeCoordinates.value.push({ lat: latitude, lng: longitude });
 
           marker.setLngLat([longitude, latitude]);
-          map.setCenter([longitude, latitude]);
           console.log('Coordenadas:', latitude, longitude, 'Speed:', speed);
         }
       }
@@ -174,10 +179,23 @@ onUnmounted(() => {
 <style scoped>
 .map-container {
   width: 100%;
-  height: 400px;
+  height: 100%;
+  position: relative;
 }
-.tracking-status {
+.center-button {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+.tracking-info {
   text-align: center;
-  margin-top: 20px;
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  z-index: 10;
+  background-color: transparent;
+  color: white;
 }
 </style>

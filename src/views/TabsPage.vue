@@ -17,6 +17,12 @@
           <ion-icon aria-hidden="true" :icon="walk" />
           <ion-label>Mis rutas</ion-label>
         </ion-tab-button>
+
+        <ion-tab-button tab="tab4" href="/tabs/tab4">
+          <ion-icon aria-hidden="true" :icon="person" />
+          <ion-label>Mi cuenta</ion-label>
+        </ion-tab-button>
+
       </ion-tab-bar>
     </ion-tabs>
   </ion-page>
@@ -24,6 +30,6 @@
 
 <script setup lang="ts">
 import { IonTabBar, IonTabButton, IonTabs, IonLabel, IonIcon, IonPage, IonRouterOutlet } from '@ionic/vue';
-import { home, locate, walk} from 'ionicons/icons';
+import {home, locate, person, walk} from 'ionicons/icons';
 
 </script>

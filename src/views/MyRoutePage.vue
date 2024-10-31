@@ -1,0 +1,91 @@
+<template>
+  <ion-page>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>{{ routeData.name }}</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content :fullscreen="true">
+      <div id="map" class="map-container"></div>
+      <div class="info">
+        <p>Fecha: {{ new Date(routeData.created_at).toLocaleString() }}</p>
+        <p>Distancia: {{ routeData.distance }}</p>
+        <p>Tiempo: {{ routeData.duration }}</p>
+      </div>
+    </ion-content>
+  </ion-page>
+</template>
+
+<script setup lang="ts">
+import { onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
+
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+
+const route = useRoute();
+const routeData = route.params.route ? JSON.parse(route.params.route) : null;
+
+const initMap = () => {
+
+  const coordinates = routeData.path.map((coord: { lat: number; lng: number }) => [coord.lng, coord.lat]);
+  const bounds = new mapboxgl.LngLatBounds();
+
+  coordinates.forEach((coord) => bounds.extend(coord));
+
+  const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/streets-v12',
+    center: coordinates[0],
+    zoom: 15
+  });
+
+  map.on('load', () => {
+    map.addLayer({
+      id: 'route',
+      type: 'line',
+      source: {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates
+          },
+          properties: {}
+        } as GeoJSON.Feature<GeoJSON.Geometry>,
+      },
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round'
+      },
+      paint: {
+        'line-color': '#ff0000',
+        'line-width': 4
+      }
+    });
+    map.fitBounds(bounds, { padding: 50 });
+  });
+};
+
+onMounted(initMap);
+</script>
+
+<style scoped>
+.map-container {
+  width: 100%;
+  height: 70%;
+  position: relative;
+}
+.info {
+  text-align: center;
+  position: absolute;
+  margin-top: 20px;
+  width: 100%;
+  color: white;
+  font-size: 24px;
+}
+</style>

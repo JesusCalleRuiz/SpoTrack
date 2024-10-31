@@ -13,7 +13,7 @@
         </ion-toolbar>
       </ion-header>
 
-      <ion-card v-for="(route) in routes" :key="route.id">
+      <ion-card @click="goToMyRoutePage(route)" v-for="(route) in routes" :key="route.id">
         <div :id="`map-${route.id}`" class="map-container"></div>
         <ion-card-header>
           <ion-card-title>{{ route.name }}</ion-card-title>
@@ -44,6 +44,15 @@ import {
 import { ref, onMounted, nextTick } from 'vue';
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+const goToMyRoutePage = (route: Route) => {
+  router.push({
+    path: `/route/${JSON.stringify(route)}`
+  });
+};
 
 interface Route {
   id: number;
@@ -61,7 +70,7 @@ const fetchRoutes = async (userId : string) => {
     const response = await fetch(`https://spotrack.dev-alicenter.es/api/route/${userId}`);
     if (response.ok) {
       const data = await response.json();
-      console.log(data);
+      //console.log(data);
       routes.value = data.data.map((route : any) => ({
         ...route,
         path: JSON.parse(route.path)
@@ -85,9 +94,8 @@ const initMap = (route : Route) => {
   mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
   const coordinates : Array<[number, number]>= route.path.map((coord: { lat: number; lng: number }) => [coord.lng, coord.lat]);
-  console.log('Coordinates:' ,coordinates)
+  //console.log('Coordinates:' ,coordinates)
   const bounds : mapboxgl.LngLatBounds= new mapboxgl.LngLatBounds();
-  console.log('bounds',bounds)
   coordinates.forEach((coord) => {
     bounds.extend(coord);
   });
