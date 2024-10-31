@@ -109,6 +109,7 @@ const initMap = (route : Route) => {
   });
 
   map.on('load', () => {
+    map.resize();
     map.addLayer({
       'id': `route-${route.id}`,
       'type': 'line',
@@ -134,15 +135,16 @@ const initMap = (route : Route) => {
     });
 
     map.fitBounds(bounds, { padding: 100 });
+
   });
 };
-
 </script>
 
 <style>
 .map-container {
   width: 100%;
   height: 250px;
+  position: relative;
 }
 </style>
 

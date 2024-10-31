@@ -7,7 +7,7 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-      <div id="map2" class="map-container"></div>
+      <div id="map2" class="map2-container"></div>
       <div class="info" v-if="routeData">
         <p>Fecha: {{ new Date(routeData.created_at).toLocaleString() }}</p>
         <p>Distancia: {{ routeData.distance }}</p>
@@ -54,16 +54,16 @@ const initMap = () => {
   coordinates.forEach((coord) => {
     bounds.extend(coord);
   });
-
-  const map = new mapboxgl.Map({
+  //console.log(coordinates)
+  const map2 = new mapboxgl.Map({
     container: 'map2',
     style: 'mapbox://styles/mapbox/streets-v12',
     center: [routeData.value.path[0].lng, routeData.value.path[0].lat],
     zoom: 15
   });
-
-  map.on('load', () => {
-    map.addLayer({
+  map2.on('load', () => {
+    map2.resize();
+    map2.addLayer({
       id: 'route',
       type: 'line',
       source: {
@@ -86,7 +86,7 @@ const initMap = () => {
         'line-width': 4
       }
     });
-    map.fitBounds(bounds, { padding: 50 });
+    map2.fitBounds(bounds, { padding: 50 });
   });
 };
 onMounted(initMap);
@@ -94,7 +94,7 @@ onMounted(initMap);
 </script>
 
 <style scoped>
-.map-container {
+.map2-container {
   width: 100%;
   height: 70%;
   position: relative;

@@ -19,10 +19,11 @@
         <ion-button @click="startTracking" shape="round" size="large">INICIAR</ion-button>
       </div>
       <div class="center-button" v-if="isTracking">
-        <ion-button @click="stopTracking" shape="round" size="large">PAUSAR</ion-button>
-        <ion-button @click="stopTracking" shape="round" size="large">TERMINAR</ion-button>
+        <div class="twobuttons">
+          <ion-button @click="stopTracking" shape="round" size="large">PAUSAR</ion-button>
+          <ion-button @click="stopTracking" shape="round" size="large">TERMINAR</ion-button>
+        </div>
       </div>
-
       <!--div class="tracking-info" v-else>
         <p>Distancia: {{ distancia }}</p>
         <p>Tiempo: {{ tiempo }}</p>
@@ -33,7 +34,7 @@
 
 <script setup lang="ts">
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted,} from 'vue';
 import { Geolocation } from '@capacitor/geolocation';
 import axios from 'axios';
 import mapboxgl from 'mapbox-gl';
@@ -74,8 +75,6 @@ const initializeMap = async () => {
 const startTracking = async () => {
   isTracking.value = true;
   startTime = Date.now();
-
-
   watchId = await Geolocation.watchPosition(
       {
         enableHighAccuracy: true,
@@ -129,7 +128,6 @@ const enviarCarrera = async () => {
   }
 };
 
-// Helper functions
 const calculateDistance = () => {
   let total = 0;
   for (let i = 0; i < routeCoordinates.value.length - 1; i++) {
@@ -171,9 +169,7 @@ const resetTrackingData = () => {
 };
 
 onMounted(initializeMap);
-onUnmounted(() => {
-  if (map) map.remove();
-});
+
 </script>
 
 <style scoped>
@@ -188,6 +184,10 @@ onUnmounted(() => {
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
+}
+.twobuttons {
+  display: flex;
+  gap: 10px;
 }
 .tracking-info {
   text-align: center;
