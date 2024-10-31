@@ -7,7 +7,7 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-      <div id="map" class="map-container"></div>
+      <div id="map2" class="map-container"></div>
       <div class="info" v-if="routeData">
         <p>Fecha: {{ new Date(routeData.created_at).toLocaleString() }}</p>
         <p>Distancia: {{ routeData.distance }}</p>
@@ -56,7 +56,7 @@ const initMap = () => {
   });
 
   const map = new mapboxgl.Map({
-    container: 'map',
+    container: 'map2',
     style: 'mapbox://styles/mapbox/streets-v12',
     center: [routeData.value.path[0].lng, routeData.value.path[0].lat],
     zoom: 15
@@ -90,6 +90,7 @@ const initMap = () => {
   });
 };
 onMounted(initMap);
+
 </script>
 
 <style scoped>

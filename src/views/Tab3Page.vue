@@ -41,7 +41,7 @@ import {
   IonCardHeader,
   IonCardTitle
 } from '@ionic/vue';
-import { ref, onMounted, nextTick } from 'vue';
+import {ref, onMounted, nextTick} from 'vue';
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useRouter } from 'vue-router';
