@@ -35,20 +35,30 @@ interface RouteData {
 }
 
 const route = useRoute();
-const routeData = ref<RouteData | null>(route.params.route ? JSON.parse(route.params.route) : null);
+const routeData = ref<RouteData | null>(null);
+
+if (route.params.route) {
+  try {
+    routeData.value = JSON.parse(route.params.route as string) as RouteData;
+  } catch (error) {
+    console.error('Error en los datos de la ruta:', error);
+    routeData.value = null;
+  }
+}
 
 const initMap = () => {
   if (!routeData.value) return;
 
-  const coordinates = routeData.value.path.map((coord: { lat: number; lng: number }) => [coord.lng, coord.lat]);
+  const coordinates : Array<[number, number]> = routeData.value.path.map((coord: { lat: number; lng: number }) => [coord.lng, coord.lat]);
   const bounds = new mapboxgl.LngLatBounds();
-
-  coordinates.forEach((coord) => bounds.extend(coord));
+  coordinates.forEach((coord) => {
+    bounds.extend(coord);
+  });
 
   const map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/streets-v12',
-    center: coordinates[0],
+    center: [routeData.value.path[0].lng, routeData.value.path[0].lat],
     zoom: 15
   });
 

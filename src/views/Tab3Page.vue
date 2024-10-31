@@ -45,6 +45,7 @@ import { ref, onMounted, nextTick } from 'vue';
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useRouter } from 'vue-router';
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
 const router = useRouter();
 
@@ -91,7 +92,6 @@ onMounted(() => {
 });
 
 const initMap = (route : Route) => {
-  mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
   const coordinates : Array<[number, number]>= route.path.map((coord: { lat: number; lng: number }) => [coord.lng, coord.lat]);
   //console.log('Coordinates:' ,coordinates)
