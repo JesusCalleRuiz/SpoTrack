@@ -72,6 +72,7 @@ const startTracking = async () => {
   watchId = await Geolocation.watchPosition(
       {
         enableHighAccuracy: true,
+
       },
       (position) => {
         if (position) {

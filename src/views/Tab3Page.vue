@@ -111,7 +111,8 @@ const initMap = (route : Route) => {
           'geometry': {
             'type': 'LineString',
             'coordinates': coordinates
-          }
+          },
+          properties: {}
         } as GeoJSON.Feature<GeoJSON.Geometry>,
       },
       'layout': {
