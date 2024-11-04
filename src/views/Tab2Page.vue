@@ -36,6 +36,7 @@
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { ref, onMounted,} from 'vue';
 import { Geolocation } from '@capacitor/geolocation';
+import {BackgroundGeolocationPlugin} from "@capacitor-community/background-geolocation";
 import axios from 'axios';
 import mapboxgl from 'mapbox-gl';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
@@ -53,10 +54,11 @@ const isTracking = ref(false);
 let map: mapboxgl.Map;
 let marker: mapboxgl.Marker;
 let watchId: string | null = null;
+let backgroundWatcherId: string | null = null;
 let startTime: number = 0;
 let endTime: number = 0;
+const BackgroundGeolocation = registerPlugin<BackgroundGeolocationPlugin>("BackgroundGeolocation");
 
-// Initialize the map
 const initializeMap = async () => {
   const position = await Geolocation.getCurrentPosition();
   const { latitude, longitude } = position.coords;
@@ -75,6 +77,7 @@ const initializeMap = async () => {
 const startTracking = async () => {
   isTracking.value = true;
   startTime = Date.now();
+  //primer plano
   watchId = await Geolocation.watchPosition(
       {
         enableHighAccuracy: true,
@@ -89,6 +92,37 @@ const startTracking = async () => {
         }
       }
   );
+  //segundo plano
+  backgroundWatcherId = await BackgroundGeolocation.addWatcher(
+      {
+        backgroundMessage: 'La aplicación está rastreando tu ubicación.',
+        backgroundTitle: 'Rastreo en segundo plano activado',
+        requestPermissions: true,
+        stale: false,
+        distanceFilter: 3,
+      },
+      (position, error) => {
+        if (error) {
+          if (error.code === 'NOT_AUTHORIZED') {
+            alert(
+                'La geolocalización en segundo plano no está autorizada'
+            );
+            if (window.confirm(
+                "Esta aplicación necesita tu localización, " +
+                "pero no tiene permisos.\n\n" +
+                "¿Quieres cambiar tus ajustes?"
+            )) {
+              BackgroundGeolocation.openSettings();
+            }
+          }
+          return console.error(error);
+        }
+        if (position) {
+          const {latitude, longitude} = position.coords;
+          routeCoordinates.value.push({lat: latitude, lng: longitude});
+        }
+      }
+  );
 };
 
 const stopTracking = async () => {
@@ -98,6 +132,10 @@ const stopTracking = async () => {
   if (watchId !== null) {
     await Geolocation.clearWatch({ id: watchId });
     watchId = null;
+  }
+  if (backgroundWatcherId) {
+    await BackgroundGeolocation.removeWatcher({ id: backgroundWatcherId });
+    backgroundWatcherId = null;
   }
 
   distancia.value = formatDistance(calculateDistance());
