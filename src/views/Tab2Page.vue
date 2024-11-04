@@ -119,7 +119,7 @@ const startTracking = async () => {
           return console.error(error);
         }
         if (position) {
-          const {latitude, longitude} = position.coords;
+          const {latitude, longitude} = location;
           routeCoordinates.value.push({lat: latitude, lng: longitude});
         }
       }
