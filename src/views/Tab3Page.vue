@@ -10,20 +10,13 @@
 
         <ion-title>Mis Rutas</ion-title>
 
-        <ion-buttons slot="end">
-          <ion-button @click="reloadPage">
-            <ion-icon aria-hidden="true" :icon="refresh" />
-          </ion-button>
-        </ion-buttons>
       </ion-toolbar>
     </ion-header>
 
     <ion-content :fullscreen="true">
-      <ion-header collapse="condense">
-        <ion-toolbar>
-          <ion-title size="large">Mis Rutas</ion-title>
-        </ion-toolbar>
-      </ion-header>
+      <ion-refresher slot="fixed" @ionRefresh="reloadPage">
+        <ion-refresher-content></ion-refresher-content>
+      </ion-refresher>
 
       <ion-card @click="goToMyRoutePage(route)" v-for="(route) in routes" :key="route.id">
         <div :id="`map-${route.id}`" class="map-container"></div>
@@ -57,10 +50,12 @@ import {ref, onMounted, nextTick} from 'vue';
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useRouter } from 'vue-router';
-import {arrowBack, home, refresh} from "ionicons/icons";
+import {arrowBack} from "ionicons/icons";
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
 const router = useRouter();
+
+
 
 const goToMyRoutePage = (route: Route) => {
   router.push({
