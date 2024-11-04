@@ -2,7 +2,19 @@
   <ion-page>
     <ion-header>
       <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-button @click="goBack">
+            <ion-icon aria-hidden="true" :icon="arrowBack" />
+          </ion-button>
+        </ion-buttons>
+
         <ion-title>Mis Rutas</ion-title>
+
+        <ion-buttons slot="end">
+          <ion-button @click="reloadPage">
+            <ion-icon aria-hidden="true" :icon="refresh" />
+          </ion-button>
+        </ion-buttons>
       </ion-toolbar>
     </ion-header>
 
@@ -39,12 +51,13 @@ import {
   IonCard,
   IonCardContent,
   IonCardHeader,
-  IonCardTitle
+  IonCardTitle, IonIcon
 } from '@ionic/vue';
 import {ref, onMounted, nextTick} from 'vue';
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useRouter } from 'vue-router';
+import {arrowBack, home, refresh} from "ionicons/icons";
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
 const router = useRouter();
@@ -53,6 +66,14 @@ const goToMyRoutePage = (route: Route) => {
   router.push({
     path: `/route/${JSON.stringify(route)}`
   });
+};
+
+const reloadPage = () => {
+  window.location.reload();
+};
+
+const goBack = () => {
+  router.back();
 };
 
 interface Route {

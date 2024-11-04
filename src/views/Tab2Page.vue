@@ -57,6 +57,7 @@ let watchId: string | null = null;
 let backgroundWatcherId: string | null = null;
 let startTime: number = 0;
 let endTime: number = 0;
+import { registerPlugin } from '@capacitor/core';
 const BackgroundGeolocation = registerPlugin<BackgroundGeolocationPlugin>("BackgroundGeolocation");
 
 const initializeMap = async () => {
