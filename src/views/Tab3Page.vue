@@ -19,7 +19,8 @@
       </ion-refresher>
 
       <ion-card @click="goToMyRoutePage(route)" v-for="(route) in routes" :key="route.id">
-        <div :id="`map-${route.id}`" class="map-container"></div>
+        <img :src="getImage(route)" alt="Ruta de mapa" class="map-container" />
+
         <ion-card-header>
           <ion-card-title>{{ route.name }}</ion-card-title>
         </ion-card-header>
@@ -44,7 +45,12 @@ import {
   IonCard,
   IonCardContent,
   IonCardHeader,
-  IonCardTitle, IonIcon
+  IonCardTitle,
+  IonIcon,
+  IonButtons,
+  IonRefresher,
+  IonRefresherContent,
+  IonButton
 } from '@ionic/vue';
 import {ref, onMounted, nextTick} from 'vue';
 import mapboxgl from "mapbox-gl";
@@ -93,7 +99,7 @@ const fetchRoutes = async (userId : string) => {
         path: JSON.parse(route.path)
       }));
       await nextTick();
-      routes.value.forEach(route => initMap(route));
+      routes.value.forEach(route => getImage(route));
     } else {
       console.error('Error al obtener las rutas');
     }
@@ -107,52 +113,77 @@ onMounted(() => {
   fetchRoutes(userId);
 });
 
-const initMap = (route : Route) => {
+const getImage = (route: Route) => {
 
-  const coordinates : Array<[number, number]>= route.path.map((coord: { lat: number; lng: number }) => [coord.lng, coord.lat]);
-  //console.log('Coordinates:' ,coordinates)
-  const bounds : mapboxgl.LngLatBounds= new mapboxgl.LngLatBounds();
-  coordinates.forEach((coord) => {
-    bounds.extend(coord);
-  });
+  const coordinates = route.path.map(coord => [coord.lng, coord.lat]);
 
-  const map = new mapboxgl.Map({
-    container: `map-${route.id}`,
-    style: 'mapbox://styles/mapbox/streets-v11',
-    center: [route.path[0].lng, route.path[0].lat],
-    zoom: 15,
-    interactive: false
-  });
+  const lats = coordinates.map(c => c[1]);
+  const lngs = coordinates.map(c => c[0]);
 
-  map.on('load', () => {
-    map.resize();
-    map.addLayer({
-      'id': `route-${route.id}`,
-      'type': 'line',
-      'source': {
-        'type': 'geojson',
-        'data': {
-          'type': 'Feature',
-          'geometry': {
-            'type': 'LineString',
-            'coordinates': coordinates
-          },
-          properties: {}
-        } as GeoJSON.Feature<GeoJSON.Geometry>,
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+  const minLng = Math.min(...lngs);
+  const maxLng = Math.max(...lngs);
+
+  const start = route.path[0]; // Primeras coordenadas
+  const end = route.path[route.path.length - 1];
+
+  const startLat = start.lat;
+  const startLng = start.lng;
+
+  const endLat = end.lat;
+  const endLng = end.lng;
+
+  const geoJson = {
+    type: "FeatureCollection",
+    features: [
+      {
+        type: "Feature",
+        geometry: {
+          type: "LineString",
+          coordinates: coordinates,
+        },
+        properties: {
+          "stroke": "#ff0000",
+          "stroke-width": 4,
+          "stroke-opacity": 0.8
+        },
       },
-      'layout': {
-        'line-join': 'round',
-        'line-cap': 'round'
+      {
+        type: "Feature",
+        properties: {
+          "marker-size": "small",
+          "marker-symbol": "star",
+          "marker-color": "#04ff00"
+        },
+        geometry: {
+          coordinates: [
+            startLng,
+            startLat
+          ],
+          type: "Point"
+        }
       },
-      'paint': {
-        'line-color': '#ff0000',
-        'line-width': 4
-      }
-    });
+      {
+        type: "Feature",
+        properties: {
+          "marker-size": "small",
+          "marker-symbol": "star",
+          "marker-color": "#000000"
+        },
+        geometry: {
+          coordinates: [
+            endLng,
+            endLat
+          ],
+          type: "Point"
+        }
+      },
+    ],
+  };
+  const geoJsonParam = encodeURIComponent(JSON.stringify(geoJson));
 
-    map.fitBounds(bounds, { padding: 100 });
-
-  });
+  return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/geojson(${geoJsonParam})/[${minLng},${minLat},${maxLng},${maxLat}]/300x150@2x?padding=20&access_token=${mapboxgl.accessToken}`;
 };
 </script>
 

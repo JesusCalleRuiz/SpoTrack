@@ -34,6 +34,8 @@ import '@ionic/vue/css/palettes/dark.class.css';
 /* Theme variables */
 import './theme/variables.css';
 
+document.documentElement.classList.add('ion-palette-dark');
+
 const app = createApp(App)
   .use(IonicVue)
   .use(router);

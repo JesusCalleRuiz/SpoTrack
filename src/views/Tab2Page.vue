@@ -41,6 +41,7 @@ import axios from 'axios';
 import mapboxgl from 'mapbox-gl';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
 import { IonButton } from '@ionic/vue';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
@@ -161,6 +162,10 @@ const enviarCarrera = async () => {
 
     console.log('Carrera guardada:', response.data);
     alert('Carrera guardada correctamente!');
+
+    //vibracion fuerte
+    await Haptics.impact({ style: ImpactStyle.Heavy });
+
     resetTrackingData();
   } catch (error) {
     console.error('Error al guardar la carrera:', error);
