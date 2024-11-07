@@ -89,14 +89,16 @@ const initMap = () => {
     });
     map2.fitBounds(bounds, { padding: 50 });
 
-    const start = routeData.value?.path[0];
+    const start = routeData.value?.path[0] ?? { lat: 0, lng: 0 };
+    const end = routeData.value?.path[routeData.value?.path.length - 1] ?? { lat: 0, lng: 0 };
+
+
     new mapboxgl.Marker({ color: "#04ff00" })
-        .setLngLat([start?.lng, start?.lat])
+        .setLngLat([start.lng ?? 0, start.lat ?? 0])
         .addTo(map2);
 
-    const end = routeData.value?.path[routeData.value?.path.length - 1];
     new mapboxgl.Marker({ color: "#000000" })
-        .setLngLat([end?.lng, end?.lat])
+        .setLngLat([end.lng ?? 0, end.lat ?? 0])
         .addTo(map2);
   });
 };
