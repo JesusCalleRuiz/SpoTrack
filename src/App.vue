@@ -13,11 +13,9 @@ import { Device } from '@capacitor/device';
 
 onMounted(async () => {
   //solicitar permisos de ubicación
-  const permission = await Geolocation.requestPermissions({
-    permissions: ["location", "background"],
-  });
-  if (permission.location !== 'granted' || permission.background !== 'granted') {
-    alert("La aplicación necesita permisos de ubicación en primer y segundo plano.");
+  const permission = await Geolocation.requestPermissions();
+  if (permission.location !== 'granted') {
+    alert("La aplicación necesita permisos de ubicación en primer plano.");
   }
 
   //solicitar permisos de notificación en Android 13 y superior

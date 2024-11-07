@@ -88,15 +88,17 @@ const initMap = () => {
       }
     });
     map2.fitBounds(bounds, { padding: 50 });
-    const start = routeData.value.path[0];
-    new mapboxgl.Marker({ color: "#04ff00" })
-        .setLngLat([start.lng, start.lat])
-        .addTo(map2);
+    if (routeData.value.path.length) {
+      const start = routeData.value.path[0];
+      new mapboxgl.Marker({ color: "#04ff00" })
+          .setLngLat([start.lng, start.lat])
+          .addTo(map2);
 
-    const end = routeData.value.path[routeData.value.path.length - 1];
-    new mapboxgl.Marker({ color: "#000000" })
-        .setLngLat([end.lng, end.lat])
-        .addTo(map2);
+      const end = routeData.value.path[routeData.value.path.length - 1];
+      new mapboxgl.Marker({ color: "#000000" })
+          .setLngLat([end.lng, end.lat])
+          .addTo(map2);
+    }
   });
 };
 onMounted(initMap);
