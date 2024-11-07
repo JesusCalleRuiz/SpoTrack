@@ -88,7 +88,7 @@ const initMap = () => {
       }
     });
     map2.fitBounds(bounds, { padding: 50 });
-    if (routeData.value.path.length) {
+    if (routeData.value.path !== null) {
       const start = routeData.value.path[0];
       new mapboxgl.Marker({ color: "#04ff00" })
           .setLngLat([start.lng, start.lat])

@@ -21,7 +21,8 @@ onMounted(async () => {
   //solicitar permisos de notificación en Android 13 y superior
   const deviceInfo = await Device.getInfo();
   if (deviceInfo.platform === 'android' && deviceInfo.osVersion >= '13') {
-    const { status } = await PushNotifications.requestPermissions();
+    const permissionResponse = await PushNotifications.requestPermissions();
+    const status = (permissionResponse as { status?: string }).status;
     if (status !== 'granted') {
       alert("La aplicación necesita permisos de notificación para operar en segundo plano.");
     }
