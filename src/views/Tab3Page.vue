@@ -101,7 +101,7 @@ const fetchRoutes = async () => {
 
     if (response.ok) {
       const data = await response.json();
-      routes.value = data.data.map((route) => ({
+      routes.value = data.data.map((route:Route) => ({
         ...route,
         path: JSON.parse(route.path),
       }));

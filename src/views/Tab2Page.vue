@@ -15,14 +15,14 @@
 
       <div id="map" class="map-container"></div>
 
-      <div class="center-button" v-if="!isTracking&!isPaused">
+      <div class="center-button" v-if="!isTracking&&!isPaused">
         <ion-button @click="startTracking" shape="round" size="large">INICIAR</ion-button>
       </div>
-      <div class="center-button" v-if="isTracking&!isPaused">
+      <div class="center-button" v-if="isTracking&&!isPaused">
           <ion-button @click="pauseTracking" shape="round" size="large">PAUSAR</ion-button>
       </div>
 
-      <div class="center-button" v-if="!isTracking&isPaused">
+      <div class="center-button" v-if="!isTracking&&isPaused">
         <div class="twobuttons">
           <ion-button @click="stopTracking" shape="round" size="large">REANUDAR</ion-button>
           <ion-button @click="stopTracking" shape="round" size="large">TERMINAR</ion-button>
@@ -107,15 +107,7 @@ const startTracking = async () => {
         backgroundTitle: 'Rastreo en segundo plano activado',
         requestPermissions: true,
         stale: false,
-        distanceFilter: 3,
-        android: {
-          notification: {
-            channelName: 'Location Tracking',
-            priority: 'high',
-            sticky: true,  //notificación persistente
-            ongoing: true, //no se puede eliminar
-          }
-        }
+        distanceFilter: 3
       },
       (position, error) => {
         if (error) {
