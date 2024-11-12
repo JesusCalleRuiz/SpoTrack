@@ -101,14 +101,15 @@ const fetchRoutes = async () => {
 
     if (response.ok) {
       const data = await response.json();
-      routes.value = data.data.map((route:Route) => ({
+      //console.log(data);
+      routes.value = data.data.map((route : any) => ({
         ...route,
-        path: JSON.parse(route.path),
+        path: JSON.parse(route.path)
       }));
       await nextTick();
       routes.value.forEach(route => getImage(route));
     } else {
-      console.error('Error al obtener las rutas:', response.statusText);
+      console.error('Error al obtener las rutas');
     }
   } catch (error) {
     console.error('Error en la solicitud:', error);
