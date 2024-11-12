@@ -88,29 +88,35 @@ interface Route {
 
 const routes = ref<Route[]>([]);
 
-const fetchRoutes = async (userId : string) => {
+const fetchRoutes = async () => {
   try {
-    const response = await fetch(`https://spotrack.dev-alicenter.es/api/route/${userId}`);
+    const response = await fetch(`https://spotrack.dev-alicenter.es/api/route`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
     if (response.ok) {
       const data = await response.json();
-      //console.log(data);
-      routes.value = data.data.map((route : any) => ({
+      routes.value = data.data.map((route) => ({
         ...route,
-        path: JSON.parse(route.path)
+        path: JSON.parse(route.path),
       }));
       await nextTick();
       routes.value.forEach(route => getImage(route));
     } else {
-      console.error('Error al obtener las rutas');
+      console.error('Error al obtener las rutas:', response.statusText);
     }
   } catch (error) {
     console.error('Error en la solicitud:', error);
   }
 };
 
-const userId = '1';
 onMounted(() => {
-  fetchRoutes(userId);
+  fetchRoutes();
 });
 
 const getImage = (route: Route) => {
@@ -125,6 +131,11 @@ const getImage = (route: Route) => {
   const minLng = Math.min(...lngs);
   const maxLng = Math.max(...lngs);
 
+  //console.log("minlat:"+minLat);
+  //console.log("maxlat:"+maxLat);
+  //console.log("minlng:"+minLng);
+  //console.log("maxLng:"+maxLng);
+
   const start = route.path[0]; // Primeras coordenadas
   const end = route.path[route.path.length - 1];
 
@@ -133,6 +144,9 @@ const getImage = (route: Route) => {
 
   const endLat = end.lat;
   const endLng = end.lng;
+
+  const centerLat = (minLat + maxLat) / 2;
+  const centerLng = (minLng + maxLng) / 2;
 
   const geoJson = {
     type: "FeatureCollection",
@@ -183,7 +197,7 @@ const getImage = (route: Route) => {
   };
   const geoJsonParam = encodeURIComponent(JSON.stringify(geoJson));
 
-  return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/geojson(${geoJsonParam})/[${minLng},${minLat},${maxLng},${maxLat}]/300x150@2x?padding=20&access_token=${mapboxgl.accessToken}`;
+  return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/geojson(${geoJsonParam})/[${minLng},${minLat},${maxLng},${maxLat}]/300x200@2x?padding=50&access_token=${mapboxgl.accessToken}`;
 };
 </script>
 

@@ -10,24 +10,23 @@ import { onMounted } from 'vue';
 import { Geolocation } from '@capacitor/geolocation';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { Device } from '@capacitor/device';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 onMounted(async () => {
   //solicitar permisos de ubicación
-  const permission = await Geolocation.requestPermissions();
-  if (permission.location !== 'granted') {
-    alert("La aplicación necesita permisos de ubicación en primer plano.");
-  }
+  await Geolocation.requestPermissions();
 
   //solicitar permisos de notificación en Android 13 y superior
   const deviceInfo = await Device.getInfo();
   if (deviceInfo.platform === 'android' && deviceInfo.osVersion >= '13') {
-    const permissionResponse = await PushNotifications.requestPermissions();
-    const status = (permissionResponse as { status?: string }).status;
-    if (status !== 'granted') {
-      alert("La aplicación necesita permisos de notificación para operar en segundo plano.");
-    }
+    await PushNotifications.requestPermissions();
+  }
+  const isAuthenticated = localStorage.getItem('authToken');
+  if (!isAuthenticated) {
+    router.push('/login');
   }
 });
-
 </script>
 

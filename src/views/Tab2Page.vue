@@ -15,12 +15,16 @@
 
       <div id="map" class="map-container"></div>
 
-      <div class="center-button" v-if="!isTracking">
+      <div class="center-button" v-if="!isTracking&!isPaused">
         <ion-button @click="startTracking" shape="round" size="large">INICIAR</ion-button>
       </div>
-      <div class="center-button" v-if="isTracking">
+      <div class="center-button" v-if="isTracking&!isPaused">
+          <ion-button @click="pauseTracking" shape="round" size="large">PAUSAR</ion-button>
+      </div>
+
+      <div class="center-button" v-if="!isTracking&isPaused">
         <div class="twobuttons">
-          <ion-button @click="stopTracking" shape="round" size="large">PAUSAR</ion-button>
+          <ion-button @click="stopTracking" shape="round" size="large">REANUDAR</ion-button>
           <ion-button @click="stopTracking" shape="round" size="large">TERMINAR</ion-button>
         </div>
       </div>
@@ -52,6 +56,7 @@ const tiempo = ref('');
 const averageSpeed = ref(0);
 const maxSpeed = ref(0);
 const isTracking = ref(false);
+const isPaused = ref(false);
 let map: mapboxgl.Map;
 let marker: mapboxgl.Marker;
 let watchId: string | null = null;
@@ -78,6 +83,7 @@ const initializeMap = async () => {
 
 const startTracking = async () => {
   isTracking.value = true;
+  isPaused.value = false;
   startTime = Date.now();
   //primer plano
   watchId = await Geolocation.watchPosition(
@@ -102,6 +108,14 @@ const startTracking = async () => {
         requestPermissions: true,
         stale: false,
         distanceFilter: 3,
+        android: {
+          notification: {
+            channelName: 'Location Tracking',
+            priority: 'high',
+            sticky: true,  //notificación persistente
+            ongoing: true, //no se puede eliminar
+          }
+        }
       },
       (position, error) => {
         if (error) {
@@ -128,6 +142,11 @@ const startTracking = async () => {
   );
 };
 
+const pauseTracking = async () => {
+  isPaused.value = true;
+  isTracking.value = false
+}
+
 const stopTracking = async () => {
   endTime = Date.now();
   tiempo.value = formatDuration(calculateDuration());
@@ -149,9 +168,12 @@ const stopTracking = async () => {
 };
 
 const enviarCarrera = async () => {
+  isPaused.value = false;
+  isTracking.value = false
   try {
+    axios.defaults.withCredentials = true;
+    axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('authToken')}`;
     const response = await axios.post('https://spotrack.dev-alicenter.es/api/route', {
-      user_id: 1,
       name: "Mi ruta",
       distance: distancia.value,
       duration: tiempo.value,
@@ -159,12 +181,11 @@ const enviarCarrera = async () => {
       average_speed: averageSpeed.value.toString(),
       max_speed: maxSpeed.value.toString(),
     });
+    //vibracion fuerte
+    await Haptics.impact({ style: ImpactStyle.Heavy });
 
     console.log('Carrera guardada:', response.data);
     alert('Carrera guardada correctamente!');
-
-    //vibracion fuerte
-    await Haptics.impact({ style: ImpactStyle.Heavy });
 
     resetTrackingData();
   } catch (error) {

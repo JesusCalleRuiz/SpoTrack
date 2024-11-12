@@ -9,8 +9,17 @@ const routes: Array<RouteRecordRaw> = [
     redirect: '/tabs/tab1'
   },
   {
+    path: '/login',
+    component: () => import('@/views/LoginPage.vue')
+  },
+  {
+    path: '/register',
+    component: () => import('@/views/RegisterPage.vue')
+  },
+  {
     path: '/tabs/',
     component: TabsPage,
+    meta: { requiresAuth: true },
     children: [
       {
         path: '',
@@ -31,12 +40,13 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'tab4',
         component: () => import('@/views/Tab4Page.vue')
-      }
+      },
     ]
   },
   {
     path: '/route/:route',
     component: MyRoutePage,
+    meta: { requiresAuth: true },
     props: true
   },
 ]
@@ -45,5 +55,15 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
 })
+
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = localStorage.getItem('authToken');
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next('/login');
+  } else {
+    next();
+  }
+});
 
 export default router
