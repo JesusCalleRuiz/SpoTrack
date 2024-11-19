@@ -10,6 +10,9 @@
       <div id="map2" class="map2-container"></div>
       <div class="info" v-if="routeData">
         <p>Fecha: {{ new Date(routeData.created_at).toLocaleString() }}</p>
+        <p>Descrición: {{ routeData.description }}</p>
+        <p>Ritmo: {{ routeData.pace }}</p>
+        <p>Deporte: {{ routeData.sport }}</p>
         <p>Distancia: {{ routeData.distance }}</p>
         <p>Tiempo: {{ routeData.duration }}</p>
       </div>
@@ -32,6 +35,9 @@ interface RouteData {
   distance: string;
   duration: string;
   path: { lat: number; lng: number }[];
+  pace: string;
+  sport: string;
+  description: string;
 }
 
 const route = useRoute();
@@ -102,7 +108,14 @@ const initMap = () => {
         .addTo(map2);
   });
 };
-onMounted(initMap);
+
+onMounted(() => {
+  try {
+    initMap();
+  } catch (error) {
+    console.error('Error en onMounted:', error);
+  }
+});
 
 </script>
 

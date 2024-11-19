@@ -3,9 +3,11 @@
     <ion-header>
       <ion-toolbar>
         <ion-title>Rutas</ion-title>
+        <ion-buttons slot="end">
+          <ion-menu-button></ion-menu-button>
+        </ion-buttons>
       </ion-toolbar>
     </ion-header>
-
     <ion-content :fullscreen="true">
       <ion-header collapse="condense">
         <ion-toolbar>
@@ -24,7 +26,7 @@
 
       <div class="center-button" v-if="!isTracking&&isPaused">
         <div class="twobuttons">
-          <ion-button @click="stopTracking" shape="round" size="large">REANUDAR</ion-button>
+          <ion-button @click="continueTracking" shape="round" size="large">REANUDAR</ion-button>
           <ion-button @click="stopTracking" shape="round" size="large">TERMINAR</ion-button>
         </div>
       </div>
@@ -41,20 +43,16 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { ref, onMounted,} from 'vue';
 import { Geolocation } from '@capacitor/geolocation';
 import {BackgroundGeolocationPlugin} from "@capacitor-community/background-geolocation";
-import axios from 'axios';
 import mapboxgl from 'mapbox-gl';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
+import {IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton} from '@ionic/vue';
 import { IonButton } from '@ionic/vue';
-import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { useRouter } from 'vue-router';
+import { useRouteStore } from '@/stores/routeStore';
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
 // State variables
 const routeCoordinates = ref<{ lat: number; lng: number }[]>([]);
-const distancia = ref('');
-const tiempo = ref('');
-const averageSpeed = ref(0);
-const maxSpeed = ref(0);
 const isTracking = ref(false);
 const isPaused = ref(false);
 let map: mapboxgl.Map;
@@ -65,7 +63,8 @@ let startTime: number = 0;
 let endTime: number = 0;
 import { registerPlugin } from '@capacitor/core';
 const BackgroundGeolocation = registerPlugin<BackgroundGeolocationPlugin>("BackgroundGeolocation");
-
+const router = useRouter();
+const routeStore = useRouteStore();
 const initializeMap = async () => {
   const position = await Geolocation.getCurrentPosition();
   const { latitude, longitude } = position.coords;
@@ -84,6 +83,12 @@ const initializeMap = async () => {
 const startTracking = async () => {
   isTracking.value = true;
   isPaused.value = false;
+  routeStore.routeCoordinates = [];
+  routeStore.distancia = '';
+  routeStore.tiempo = '';
+  routeStore.ritmo = '';
+  isTracking.value = true;
+  isPaused.value = false;
   startTime = Date.now();
   //primer plano
   watchId = await Geolocation.watchPosition(
@@ -92,11 +97,11 @@ const startTracking = async () => {
       },
       (position) => {
         if (position) {
-          const { latitude, longitude, speed } = position.coords;
-          routeCoordinates.value.push({ lat: latitude, lng: longitude });
+          const { latitude, longitude} = position.coords;
+          routeStore.routeCoordinates.push({ lat: latitude, lng: longitude });
 
           marker.setLngLat([longitude, latitude]);
-          console.log('Coordenadas:', latitude, longitude, 'Speed:', speed);
+          console.log('Coordenadas:', latitude, longitude);
         }
       }
   );
@@ -128,7 +133,7 @@ const startTracking = async () => {
         if (position) {
           const latitude = position.latitude;
           const longitude = position.longitude;
-          routeCoordinates.value.push({lat: latitude, lng: longitude});
+          routeStore.routeCoordinates.push({lat: latitude, lng: longitude});
         }
       }
   );
@@ -137,11 +142,21 @@ const startTracking = async () => {
 const pauseTracking = async () => {
   isPaused.value = true;
   isTracking.value = false
+
+  if (watchId !== null) {
+    Geolocation.clearWatch({ id: watchId });
+    watchId = null;
+  }
+  if (backgroundWatcherId !== null) {
+    await BackgroundGeolocation.removeWatcher({ id: backgroundWatcherId });
+    backgroundWatcherId = null;
+  }
+  console.log('Ruta pausada');
 }
 
 const stopTracking = async () => {
   endTime = Date.now();
-  tiempo.value = formatDuration(calculateDuration());
+  routeStore.tiempo = formatDuration(calculateDuration());
 
   if (watchId !== null) {
     await Geolocation.clearWatch({ id: watchId });
@@ -152,38 +167,68 @@ const stopTracking = async () => {
     backgroundWatcherId = null;
   }
 
-  distancia.value = formatDistance(calculateDistance());
-  averageSpeed.value = calculateAverageSpeed();
+  routeStore.distancia = formatDistance(calculateDistance());
+  routeStore.ritmo = calculatePace(calculateDistance(),calculateDuration());
   isTracking.value = false;
 
-  await enviarCarrera();
+  await saveTrack();
 };
 
-const enviarCarrera = async () => {
+const continueTracking = async () => {
+  isTracking.value = true;
+  isPaused.value = false;
+
+  watchId = await Geolocation.watchPosition(
+      { enableHighAccuracy: true },
+      (position) => {
+        if (position) {
+          const { latitude, longitude} = position.coords;
+          routeStore.routeCoordinates.push({ lat: latitude, lng: longitude });
+
+          marker.setLngLat([longitude, latitude]);
+          console.log('Coordenadas reanuda:', latitude, longitude);
+        }
+      }
+  );
+
+  backgroundWatcherId = await BackgroundGeolocation.addWatcher(
+      {
+        backgroundMessage: 'La aplicación está rastreando tu ubicación.',
+        backgroundTitle: 'Rastreo en segundo plano activado',
+        requestPermissions: true,
+        stale: false,
+        distanceFilter: 3
+      },
+      (position, error) => {
+        if (error) {
+          if (error.code === 'NOT_AUTHORIZED') {
+            alert(
+                'La geolocalización en segundo plano no está autorizada'
+            );
+            if (window.confirm(
+                "Esta aplicación necesita tu localización, " +
+                "pero no tiene permisos.\n\n" +
+                "¿Quieres cambiar tus ajustes?"
+            )) {
+              BackgroundGeolocation.openSettings();
+            }
+          }
+          return console.error(error);
+        }
+        if (position) {
+          const latitude = position.latitude;
+          const longitude = position.longitude;
+          routeStore.routeCoordinates.push({lat: latitude, lng: longitude});
+        }
+      }
+  );
+};
+
+
+const saveTrack = async () => {
   isPaused.value = false;
   isTracking.value = false
-  try {
-    axios.defaults.withCredentials = true;
-    axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('authToken')}`;
-    const response = await axios.post('https://spotrack.dev-alicenter.es/api/route', {
-      name: "Mi ruta",
-      distance: distancia.value,
-      duration: tiempo.value,
-      path: JSON.stringify(routeCoordinates.value),
-      average_speed: averageSpeed.value.toString(),
-      max_speed: maxSpeed.value.toString(),
-    });
-    //vibracion fuerte
-    await Haptics.impact({ style: ImpactStyle.Heavy });
-
-    console.log('Carrera guardada:', response.data);
-    alert('Carrera guardada correctamente!');
-
-    resetTrackingData();
-  } catch (error) {
-    console.error('Error al guardar la carrera:', error);
-    alert('Error al guardar la carrera');
-  }
+  router.push('/save');
 };
 
 const calculateDistance = () => {
@@ -213,20 +258,25 @@ const formatDuration = (durationInSeconds: number) => {
   return hours > 0 ? `${hours}h ${minutes}min ${seconds}s` : minutes > 0 ? `${minutes}min ${seconds}s` : `${seconds}s`;
 };
 
-const calculateAverageSpeed = () => {
-  if (!routeCoordinates.value.length) return 0;
-  return calculateDistance() / (calculateDuration() / 3600);
+const calculatePace = (distanceInM: number,durationInSeconds: number) => {
+  if(distanceInM == 0){
+    return ("0min 0s");
+  }
+  const km = (distanceInM / 1000).toFixed(2);
+  const minutes = Math.floor((durationInSeconds % 3600) / 60);
+  const pace = minutes / km;
+  const paceMinutes = Math.floor(pace);
+  const paceSeconds = Math.round((pace - paceMinutes) * 60);
+  return `${paceMinutes}min ${paceSeconds}s`;
 };
 
-const resetTrackingData = () => {
-  routeCoordinates.value = [];
-  distancia.value = '';
-  tiempo.value = '';
-  averageSpeed.value = 0;
-  maxSpeed.value = 0;
-};
-
-onMounted(initializeMap);
+onMounted(async () => {
+  try {
+    await initializeMap();
+  } catch (error) {
+    console.error('Error en onMounted:', error);
+  }
+});
 
 </script>
 
@@ -246,14 +296,5 @@ onMounted(initializeMap);
 .twobuttons {
   display: flex;
   gap: 10px;
-}
-.tracking-info {
-  text-align: center;
-  position: absolute;
-  bottom: 10px;
-  width: 100%;
-  z-index: 10;
-  background-color: transparent;
-  color: white;
 }
 </style>

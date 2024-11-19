@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
 import TabsPage from '../views/TabsPage.vue'
 import MyRoutePage from "@/views/MyRoutePage.vue";
+import SaveMyTrackPage from "@/views/SaveMyTrackPage.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -46,6 +47,12 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/route/:route',
     component: MyRoutePage,
+    meta: { requiresAuth: true },
+    props: true
+  },
+  {
+    path: '/save',
+    component: SaveMyTrackPage,
     meta: { requiresAuth: true },
     props: true
   },

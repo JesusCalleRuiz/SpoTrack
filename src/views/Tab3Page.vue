@@ -2,23 +2,24 @@
   <ion-page>
     <ion-header>
       <ion-toolbar>
-        <ion-buttons slot="start">
-          <ion-button @click="goBack">
-            <ion-icon aria-hidden="true" :icon="arrowBack" />
-          </ion-button>
-        </ion-buttons>
-
         <ion-title>Mis Rutas</ion-title>
-
+        <ion-buttons slot="end">
+          <ion-menu-button></ion-menu-button>
+        </ion-buttons>
       </ion-toolbar>
     </ion-header>
-
     <ion-content :fullscreen="true">
       <ion-refresher slot="fixed" @ionRefresh="reloadPage">
         <ion-refresher-content></ion-refresher-content>
       </ion-refresher>
+      <ion-searchbar v-model="filterText" showCancelButton="never"  placeholder="Buscar por nombre" ></ion-searchbar>
 
-      <ion-card @click="goToMyRoutePage(route)" v-for="(route) in routes" :key="route.id">
+      <div v-if="!hasRoutes" class="no-routes">
+        <p>No hay rutas disponibles.</p>
+      </div>
+
+      <div v-if="hasRoutes">
+      <ion-card @click="goToMyRoutePage(route)" v-for="(route) in filteredRoutes" :key="route.id">
         <img :src="getImage(route)" alt="Ruta de mapa" class="map-container" />
 
         <ion-card-header>
@@ -31,6 +32,7 @@
 
         </ion-card-content>
       </ion-card>
+      </div>
     </ion-content>
   </ion-page>
 </template>
@@ -46,22 +48,19 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
-  IonIcon,
   IonButtons,
   IonRefresher,
   IonRefresherContent,
-  IonButton
+  IonSearchbar, IonMenuButton
 } from '@ionic/vue';
-import {ref, onMounted, nextTick} from 'vue';
+import {ref, onMounted, nextTick, computed} from 'vue';
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useRouter } from 'vue-router';
-import {arrowBack} from "ionicons/icons";
+import simplifyGeoJSON from 'simplify-geojson';
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
 const router = useRouter();
-
-
 
 const goToMyRoutePage = (route: Route) => {
   router.push({
@@ -73,10 +72,6 @@ const reloadPage = () => {
   window.location.reload();
 };
 
-const goBack = () => {
-  router.back();
-};
-
 interface Route {
   id: number;
   name: string;
@@ -84,9 +79,19 @@ interface Route {
   distance: string;
   duration: string;
   path: { lat: number; lng: number }[];
+  sport: string;
+  pace: string;
 }
 
 const routes = ref<Route[]>([]);
+const filterText = ref('');
+const hasRoutes = ref(true);
+
+const filteredRoutes = computed(() =>
+    routes.value.filter((route) =>
+        route.name.toLowerCase().includes(filterText.value.toLowerCase())
+    )
+);
 
 const fetchRoutes = async () => {
   try {
@@ -106,50 +111,49 @@ const fetchRoutes = async () => {
         ...route,
         path: JSON.parse(route.path)
       }));
-      await nextTick();
-      routes.value.forEach(route => getImage(route));
+      hasRoutes.value = routes.value.length > 0;
+      if (hasRoutes.value) {
+        await nextTick();
+        routes.value.forEach(route => getImage(route));
+      }
     } else {
       console.error('Error al obtener las rutas');
+      hasRoutes.value = false;
     }
   } catch (error) {
     console.error('Error en la solicitud:', error);
+    hasRoutes.value = false;
   }
 };
 
 onMounted(() => {
-  fetchRoutes();
+  try {
+    fetchRoutes();
+  } catch (error) {
+    console.error('Error en onMounted:', error);
+  }
 });
+const simplifyPath = (geoJson: any, tolerance: number = 0.001) => {
+  return simplifyGeoJSON(geoJson, tolerance);
+};
 
 const getImage = (route: Route) => {
 
   const coordinates = route.path.map(coord => [coord.lng, coord.lat]);
-
   const lats = coordinates.map(c => c[1]);
   const lngs = coordinates.map(c => c[0]);
-
   const minLat = Math.min(...lats);
   const maxLat = Math.max(...lats);
   const minLng = Math.min(...lngs);
   const maxLng = Math.max(...lngs);
-
-  //console.log("minlat:"+minLat);
-  //console.log("maxlat:"+maxLat);
-  //console.log("minlng:"+minLng);
-  //console.log("maxLng:"+maxLng);
-
   const start = route.path[0]; // Primeras coordenadas
   const end = route.path[route.path.length - 1];
-
   const startLat = start.lat;
   const startLng = start.lng;
-
   const endLat = end.lat;
   const endLng = end.lng;
 
-  const centerLat = (minLat + maxLat) / 2;
-  const centerLng = (minLng + maxLng) / 2;
-
-  const geoJson = {
+  let geoJson = {
     type: "FeatureCollection",
     features: [
       {
@@ -196,7 +200,12 @@ const getImage = (route: Route) => {
       },
     ],
   };
+  //necesario debido a que en rutas largas no renderiza la imagen max 8192 caracteres
+  geoJson = simplifyPath(geoJson, 0.0001);
+
   const geoJsonParam = encodeURIComponent(JSON.stringify(geoJson));
+
+  //console.log("GeoJson: "+geoJsonParam, "minLng: "+minLng,"minLat: "+minLat,"maxLng: "+maxLng,"maxLat: "+maxLat);
 
   return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/geojson(${geoJsonParam})/[${minLng},${minLat},${maxLng},${maxLat}]/300x200@2x?padding=50&access_token=${mapboxgl.accessToken}`;
 };
@@ -207,6 +216,12 @@ const getImage = (route: Route) => {
   width: 100%;
   height: 250px;
   position: relative;
+}
+.no-routes{
+  text-align: center;
+  font-size: 1.2rem;
+  color: gray;
+  margin: 20px 0;
 }
 </style>
 

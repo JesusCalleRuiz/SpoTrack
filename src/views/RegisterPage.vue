@@ -13,23 +13,44 @@
                 label-placement="stacked"
                 :clear-input="true"
                 v-model="name"
+                class="register-input"
             >
             </ion-input>
           </ion-item>
 
           <ion-item>
-            <ion-label position="floating">Email</ion-label>
-            <ion-input v-model="email" type="email"></ion-input>
+            <ion-input
+                label="Email"
+                label-placement="stacked"
+                :clear-input="true"
+                v-model="email"
+                class="register-input"
+            >
+            </ion-input>
           </ion-item>
 
           <ion-item>
-            <ion-label position="floating">Contraseña</ion-label>
-            <ion-input v-model="password" type="password"></ion-input>
+            <ion-input
+                label="Contraseña"
+                label-placement="stacked"
+                :clear-input="true"
+                v-model="password"
+                type="password"
+                class="register-input"
+            >
+            </ion-input>
           </ion-item>
 
           <ion-item>
-            <ion-label position="floating">Repite la contraseña</ion-label>
-            <ion-input v-model="confirmPassword" type="password"></ion-input>
+            <ion-input
+                label="Repite la contraseña"
+                label-placement="stacked"
+                :clear-input="true"
+                v-model="confirmPassword"
+                type="password"
+                class="register-input"
+            >
+            </ion-input>
           </ion-item>
 
           <ion-button expand="block" @click="register">Registrarse</ion-button>
@@ -45,7 +66,7 @@
 
 <script setup lang="ts">
 
-import { IonPage, IonContent, IonItem, IonInput, IonLabel, IonButton, IonText, IonCard, IonCardTitle, IonCardHeader, IonCardContent,} from '@ionic/vue';
+import { IonPage, IonContent, IonItem, IonInput, IonButton, IonText, IonCard, IonCardTitle, IonCardHeader, IonCardContent,} from '@ionic/vue';
 
 import { ref } from 'vue';
 import axios from 'axios';
@@ -84,3 +105,8 @@ const register = async () => {
   }
 };
 </script>
+<style>
+.register-input {
+  font-size: 20px;
+}
+</style>
