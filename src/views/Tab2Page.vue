@@ -262,7 +262,7 @@ const calculatePace = (distanceInM: number,durationInSeconds: number) => {
   if(distanceInM == 0){
     return ("0min 0s");
   }
-  const km = (distanceInM / 1000).toFixed(2);
+  const km = parseFloat((distanceInM / 1000).toFixed(2));
   const minutes = Math.floor((durationInSeconds % 3600) / 60);
   const pace = minutes / km;
   const paceMinutes = Math.floor(pace);
