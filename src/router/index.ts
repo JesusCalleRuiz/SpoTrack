@@ -3,6 +3,9 @@ import { RouteRecordRaw } from 'vue-router';
 import TabsPage from '../views/TabsPage.vue'
 import MyRoutePage from "@/views/MyRoutePage.vue";
 import SaveMyTrackPage from "@/views/SaveMyTrackPage.vue";
+import ChangePassword from "@/views/ChangePassword.vue";
+import PrivacyPolicy from "@/views/PrivacyPolicy.vue";
+import TermsPage from "@/views/TermsPage.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -42,6 +45,10 @@ const routes: Array<RouteRecordRaw> = [
         path: 'tab4',
         component: () => import('@/views/Tab4Page.vue')
       },
+      {
+        path: 'tab5',
+        component: () => import('@/views/Tab5Page.vue')
+      },
     ]
   },
   {
@@ -53,6 +60,24 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/save',
     component: SaveMyTrackPage,
+    meta: { requiresAuth: true },
+    props: true
+  },
+  {
+    path: '/change-password',
+    component: ChangePassword,
+    meta: { requiresAuth: true },
+    props: true
+  },
+  {
+    path: '/privacy-policy',
+    component: PrivacyPolicy,
+    meta: { requiresAuth: true },
+    props: true
+  },
+  {
+    path: '/terms',
+    component: TermsPage,
     meta: { requiresAuth: true },
     props: true
   },

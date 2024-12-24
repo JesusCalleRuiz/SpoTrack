@@ -3,9 +3,6 @@
     <ion-header>
       <ion-toolbar>
         <ion-title>Mis Rutas</ion-title>
-        <ion-buttons slot="end">
-          <ion-menu-button></ion-menu-button>
-        </ion-buttons>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true">
@@ -48,10 +45,9 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
-  IonButtons,
   IonRefresher,
   IonRefresherContent,
-  IonSearchbar, IonMenuButton
+  IonSearchbar
 } from '@ionic/vue';
 import {ref, onMounted, nextTick, computed} from 'vue';
 import mapboxgl from "mapbox-gl";

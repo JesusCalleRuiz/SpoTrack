@@ -10,7 +10,7 @@
       <div id="map2" class="map2-container"></div>
       <div class="info" v-if="routeData">
         <p>Fecha: {{ new Date(routeData.created_at).toLocaleString() }}</p>
-        <p>Descrición: {{ routeData.description }}</p>
+        <p>Descripción: {{ routeData.description }}</p>
         <p>Ritmo: {{ routeData.pace }}</p>
         <p>Deporte: {{ routeData.sport }}</p>
         <p>Distancia: {{ routeData.distance }}</p>
@@ -131,7 +131,7 @@ onMounted(() => {
   margin-top: 20px;
   width: 100%;
   color: white;
-  font-size: 24px;
+  font-size: 19px;
 }
 </style>
 

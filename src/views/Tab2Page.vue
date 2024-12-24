@@ -3,9 +3,6 @@
     <ion-header>
       <ion-toolbar>
         <ion-title>Rutas</ion-title>
-        <ion-buttons slot="end">
-          <ion-menu-button></ion-menu-button>
-        </ion-buttons>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true">
@@ -44,7 +41,7 @@ import { ref, onMounted,} from 'vue';
 import { Geolocation } from '@capacitor/geolocation';
 import {BackgroundGeolocationPlugin} from "@capacitor-community/background-geolocation";
 import mapboxgl from 'mapbox-gl';
-import {IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton} from '@ionic/vue';
+import {IonPage, IonHeader, IonToolbar, IonTitle, IonContent} from '@ionic/vue';
 import { IonButton } from '@ionic/vue';
 import { useRouter } from 'vue-router';
 import { useRouteStore } from '@/stores/routeStore';

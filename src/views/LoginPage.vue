@@ -51,6 +51,10 @@ const router = useRouter();
 const email = ref('');
 const password = ref('');
 
+const reloadPage = () => {
+  window.location.reload();
+};
+
 const login = async () => {
   if (!email.value || !password.value) {
     alert('Por favor, ingresa el email y la contraseña.');
@@ -64,7 +68,7 @@ const login = async () => {
     if (response.data.token) {
       //guarda el token en localStorage o en un plugin de almacenamiento seguro de Ionic
       localStorage.setItem('authToken', response.data.token);
-      router.push('/');
+      router.push('/').then(reloadPage);
     } else {
       alert(response.data.message || 'Error al iniciar sesión');
     }

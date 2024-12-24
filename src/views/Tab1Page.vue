@@ -3,9 +3,6 @@
     <ion-header>
       <ion-toolbar>
         <ion-title>Estadísticas</ion-title>
-        <ion-buttons slot="end">
-          <ion-menu-button></ion-menu-button>
-        </ion-buttons>
       </ion-toolbar>
     </ion-header>
 
@@ -70,8 +67,6 @@ import {
   IonToolbar,
   IonTitle,
   IonContent,
-  IonButtons,
-  IonMenuButton,
   IonCardContent, IonCardHeader, IonCard, IonCardTitle, IonRefresherContent, IonRefresher
 } from '@ionic/vue';
 import { onMounted, ref } from 'vue';

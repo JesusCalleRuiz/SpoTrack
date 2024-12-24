@@ -78,6 +78,10 @@ const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 
+const reloadPage = () => {
+  window.location.reload();
+};
+
 const register = async () => {
   if (!name.value || !email.value || !password.value || !confirmPassword.value) {
     alert('Por favor, completa todos los campos.');
@@ -89,6 +93,11 @@ const register = async () => {
     return;
   }
 
+  if (password.value.length < 8) {
+    alert('La nueva contraseña debe tener al menos 8 caracteres.');
+    return;
+  }
+
   try {
     const response = await axios.post('https://spotrack.dev-alicenter.es/api/register', {
       name: name.value,
@@ -97,7 +106,7 @@ const register = async () => {
     });
     const token = response.data.token;
     localStorage.setItem('authToken', token);
-    router.push('/');
+    router.push('/').then(reloadPage);
 
   } catch (error) {
     console.error('Error en el registro:', error);
