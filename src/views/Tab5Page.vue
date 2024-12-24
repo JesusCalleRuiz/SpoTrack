@@ -22,7 +22,6 @@
               @keydown.enter="sendMessage"
               placeholder="Escribe un mensaje..."
               clear-input
-              debounce="500"
               class="message-input"
           ></ion-input>
           <ion-button expand="block" @click="sendMessage" class="send-btn">Enviar</ion-button>
