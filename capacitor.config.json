@@ -1,6 +1,7 @@
 {
   "appId" : "spotrack.app",
   "appName" : "SpoTrack",
-  "webDir" : "www",
-  "bundleWebRuntime" : false
+  "webDir" : "dist",
+  "bundleWebRuntime" : false,
+  "useLegacyBridge" : true
 }
