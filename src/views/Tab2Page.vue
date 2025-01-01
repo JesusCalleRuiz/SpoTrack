@@ -267,13 +267,7 @@ const calculatePace = (distanceInM: number,durationInSeconds: number) => {
   return `${paceMinutes}min ${paceSeconds}s`;
 };
 
-onMounted(async () => {
-  try {
-    await initializeMap();
-  } catch (error) {
-    console.error('Error en onMounted:', error);
-  }
-});
+onMounted(initializeMap);
 
 </script>
 

@@ -136,6 +136,16 @@ const simplifyPath = (geoJson: any, tolerance: number = 0.001) => {
 const getImage = (route: Route) => {
 
   const coordinates = route.path.map(coord => [coord.lng, coord.lat]);
+
+  //si no hay dos puntos distintos se muestra un mapa con un marker
+  if (coordinates.length < 2 || coordinates.every((coord, i, arr) => coord[0] === arr[0][0] && coord[1] === arr[0][1])) {
+    const singlePoint = route.path[0];
+    const singleLat = singlePoint.lat;
+    const singleLng = singlePoint.lng;
+
+    return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-s+000(${singleLng},${singleLat})/${singleLng},${singleLat},15/300x200@2x?access_token=${mapboxgl.accessToken}`;
+  }
+
   const lats = coordinates.map(c => c[1]);
   const lngs = coordinates.map(c => c[0]);
   const minLat = Math.min(...lats);
