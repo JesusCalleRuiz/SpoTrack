@@ -163,7 +163,6 @@ const stopTracking = async () => {
     await BackgroundGeolocation.removeWatcher({ id: backgroundWatcherId });
     backgroundWatcherId = null;
   }
-
   routeStore.distancia = formatDistance(calculateDistance());
   routeStore.ritmo = calculatePace(calculateDistance(),calculateDuration());
   isTracking.value = false;
@@ -230,9 +229,9 @@ const saveTrack = async () => {
 
 const calculateDistance = () => {
   let total = 0;
-  for (let i = 0; i < routeCoordinates.value.length - 1; i++) {
-    const start = routeCoordinates.value[i];
-    const end = routeCoordinates.value[i + 1];
+  for (let i = 0; i < routeStore.routeCoordinates.length - 1; i++) {
+    const start = routeStore.routeCoordinates[i];
+    const end = routeStore.routeCoordinates[i + 1];
     const latDiff = end.lat - start.lat;
     const lngDiff = end.lng - start.lng;
     const distance = Math.sqrt(latDiff ** 2 + lngDiff ** 2) * 111320;
