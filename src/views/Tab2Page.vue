@@ -255,14 +255,15 @@ const formatDuration = (durationInSeconds: number) => {
 };
 
 const calculatePace = (distanceInM: number,durationInSeconds: number) => {
-  if(distanceInM == 0){
-    return ("0min 0s");
-  }
-  const km = parseFloat((distanceInM / 1000).toFixed(2));
-  const minutes = Math.floor((durationInSeconds % 3600) / 60);
-  const pace = minutes / km;
+  if (distanceInM <= 0 || durationInSeconds <= 0) return "0min 0s";
+
+  const km = distanceInM / 1000;
+  const totalMinutes = durationInSeconds / 60;
+  const pace = totalMinutes / km;
+
   const paceMinutes = Math.floor(pace);
   const paceSeconds = Math.round((pace - paceMinutes) * 60);
+
   return `${paceMinutes}min ${paceSeconds}s`;
 };
 
