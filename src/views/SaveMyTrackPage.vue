@@ -65,7 +65,9 @@ const alertButtons = [
     text: 'Eliminar',
     role: 'eliminar',
     handler: () => {
-      router.push('/tabs/tab2');
+      router.push('/tabs/tab2').then(() => {
+        window.location.reload();
+      });
     },
   },
 ];
@@ -95,7 +97,9 @@ const saveTrack = async () => {
     routeName = ref('');
     routeDescription = ref('');
     routeSport= ref('');
-    router.push('/tabs/tab3');
+    router.push('/tabs/tab2').then(() => {
+      window.location.reload();
+    });
 
   } catch (error) {
     console.error('Error al guardar la carrera:', error);

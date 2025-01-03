@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { ref, onMounted, onUnmounted} from 'vue';
+import { ref, onMounted,} from 'vue';
 import { Geolocation } from '@capacitor/geolocation';
 import {BackgroundGeolocationPlugin} from "@capacitor-community/background-geolocation";
 import mapboxgl from 'mapbox-gl';
@@ -266,21 +266,13 @@ const calculatePace = (distanceInM: number,durationInSeconds: number) => {
   return `${paceMinutes}min ${paceSeconds}s`;
 };
 
-const initializeMapIfNeeded = async () => {
-  if (!map) {
-    await initializeMap();
-  }
-  map.resize();
-};
-
 onMounted(() => {
-  document.addEventListener('ionViewDidEnter', initializeMapIfNeeded);
+  try {
+    initializeMap();
+  } catch (error) {
+    console.error('Error en onMounted:', error);
+  }
 });
-
-onUnmounted(() => {
-  document.removeEventListener('ionViewDidEnter', initializeMapIfNeeded);
-});
-
 
 </script>
 
