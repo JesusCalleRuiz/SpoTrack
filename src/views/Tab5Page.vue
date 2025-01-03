@@ -2,7 +2,7 @@
   <ion-page>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Chatbot</ion-title>
+        <ion-title>Soporte</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content>

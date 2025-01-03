@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { ref, onMounted,} from 'vue';
+import { ref, onMounted, onUnmounted} from 'vue';
 import { Geolocation } from '@capacitor/geolocation';
 import {BackgroundGeolocationPlugin} from "@capacitor-community/background-geolocation";
 import mapboxgl from 'mapbox-gl';
@@ -49,7 +49,6 @@ import { useRouteStore } from '@/stores/routeStore';
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
 // State variables
-const routeCoordinates = ref<{ lat: number; lng: number }[]>([]);
 const isTracking = ref(false);
 const isPaused = ref(false);
 let map: mapboxgl.Map;
@@ -72,7 +71,7 @@ const initializeMap = async () => {
     center: [longitude, latitude],
     zoom: 15,
   });
-
+  map.resize();
   marker = new mapboxgl.Marker().setLngLat([longitude, latitude]).addTo(map);
   map.setCenter([longitude, latitude]);
 };
@@ -267,7 +266,21 @@ const calculatePace = (distanceInM: number,durationInSeconds: number) => {
   return `${paceMinutes}min ${paceSeconds}s`;
 };
 
-onMounted(initializeMap);
+const initializeMapIfNeeded = async () => {
+  if (!map) {
+    await initializeMap();
+  }
+  map.resize();
+};
+
+onMounted(() => {
+  document.addEventListener('ionViewDidEnter', initializeMapIfNeeded);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('ionViewDidEnter', initializeMapIfNeeded);
+});
+
 
 </script>
 

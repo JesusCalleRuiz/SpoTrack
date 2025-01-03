@@ -95,7 +95,7 @@ const saveTrack = async () => {
     routeName = ref('');
     routeDescription = ref('');
     routeSport= ref('');
-    router.push('/tabs/tab2');
+    router.push('/tabs/tab3');
 
   } catch (error) {
     console.error('Error al guardar la carrera:', error);
